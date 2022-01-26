@@ -17,7 +17,7 @@ export const granulize = (html, options={}) => {
 
 function granulizeHTML(text, cfg) {
   const tag = document.createElement('div');
-  tag.innerHTML = text.replace(/\s+/g, ' ').replace(/> </g, '><').trim();
+  tag.innerHTML = text.replace(/\s+/g, ' ').trim();
 
   let html = parseTags(tag, null, cfg);
   if(cfg.tags === true && cfg.indexTags) html = indexGrains(html, cfg, 'tagId');
