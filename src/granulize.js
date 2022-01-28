@@ -95,7 +95,7 @@ function indexPhrases(html, cfg) {
 
   grains.forEach((grain) => {
     const currentGrain = grain?.textContent;
-    const currentGrainEndsWithInterpunction = currentGrain.match(/^(\,|\:|\;|\-|\–)/);
+    const currentGrainEndsWithInterpunction = currentGrain.match(/(\,|\:|\;|\-|\–)$/);
     grain.style.setProperty(`--${cfg.phraseId}-index`, phraseIndex);
     if(currentGrainEndsWithInterpunction) phraseIndex++;
   })
