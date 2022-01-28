@@ -1,6 +1,6 @@
 {
   "name": "html-text-granulizer",
-  "version": "0.10.1",
+  "version": "0.10.2",
   "description": "HTML Text Granulizer",
   "main": "src/granulize.js",
   "scripts": {
