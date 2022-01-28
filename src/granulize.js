@@ -1,7 +1,7 @@
 export const granulize = (html, options={}) => {
   const config = {...{
     tags: true,
-    words: false,
+    words: true,
     characters: true,
     tagId: 'tag',
     wordId: 'word',
