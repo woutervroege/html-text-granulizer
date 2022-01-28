@@ -6,10 +6,12 @@ export const granulize = (html, options={}) => {
     tagId: 'tag',
     wordId: 'word',
     characterId: 'char',
+    sentenceId: 'sentence',
     attribute: 'data-grain',
     indexTags: true,
     indexWords: true,
     indexCharacters: true,
+    indexSentences: true
   }, ...options};
   let granulizedHTML = granulizeHTML(html, config);
   return granulizedHTML; 
@@ -23,6 +25,7 @@ function granulizeHTML(text, cfg) {
   if(cfg.tags === true && cfg.indexTags) html = indexGrains(html, cfg, 'tagId');
   if(cfg.words === true && cfg.indexWords) html = indexGrains(html, cfg, 'wordId');
   if(cfg.characters === true && cfg.indexCharacters) html = indexGrains(html, cfg, 'characterId');
+  if(cfg.indexSentences) html = indexSentences(html, cfg);
   return html;
 }
 
@@ -32,6 +35,30 @@ function indexGrains(html, cfg, grainId) {
   elem.querySelectorAll(`[${cfg.attribute}~="${cfg[grainId]}"]`).forEach((item, i) => {
     item.style.setProperty(`--${cfg[grainId]}-index`, `${i}`);
   })  
+  return elem.innerHTML;
+}
+
+function indexSentences(html, cfg) {
+  if(!cfg.words && !cfg.characters) return html;
+  if(cfg.words === true) return indexSentencesFromWords(html, cfg);
+  return elem.innerHTML;
+}
+
+function indexSentencesFromWords(html, cfg) {
+  const elem = document.createElement('div');
+  elem.innerHTML = html;
+  const grains = [...elem.querySelectorAll(`[${cfg.attribute}~="${cfg.wordId}"]`)];
+  var sentenceIndex = 0;
+
+  grains.forEach((grain, i) => {
+    const currentWord = grain?.textContent;
+    const lastWord = grains[i-1]?.textContent || '';
+    const currentWordStartsWithCapital = currentWord.match(/^[A-Z]/);
+    const lastWordEndsWithFinalInterPunction = lastWord.match(/(\.|\!|\?)$/);
+    if(currentWordStartsWithCapital && lastWordEndsWithFinalInterPunction) sentenceIndex++;
+    grain.style.setProperty(`--${cfg.sentenceId}-index`, sentenceIndex);
+  })
+
   return elem.innerHTML;
 }
 
@@ -50,16 +77,16 @@ function parseTag(tag, cfg) {
 }
 
 function parseWords(text, cfg) {
-  if(cfg.words !== true) return parseChars(text, cfg);
+  if(cfg.words !== true) return parseCharacters(text, cfg);
   const words = text.split(/\s/).map((word) => {
     const encodedWord = encodeURIComponent(word);
-    return encodedWord.length === 0 ? '' : /*html*/`<span ${cfg.attribute}="${cfg.wordId} ${cfg.wordId}-${encodedWord}">${parseChars(word, cfg)}</span>`;
+    return encodedWord.length === 0 ? '' : /*html*/`<span ${cfg.attribute}="${cfg.wordId} ${cfg.wordId}-${encodedWord}">${parseCharacters(word, cfg)}</span>`;
   })
   return words.join(' ');
 }
 
-function parseChars(word, cfg) {
+function parseCharacters(word, cfg) {
   if(cfg.characters !== true) return word;
-  const chars = word.split(/\.*?/g).map((char) => /*html*/`<span ${cfg.attribute}="${cfg.characterId} ${cfg.characterId}-${encodeURIComponent(char)}">${char}</span>`);
-  return chars.join('');
+  const characters = word.split(/\.*?/g).map((char) => /*html*/`<span ${cfg.attribute}="${cfg.characterId} ${cfg.characterId}-${encodeURIComponent(char)}">${char}</span>`);
+  return characters.join('');
 }
