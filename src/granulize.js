@@ -41,6 +41,7 @@ function indexGrains(html, cfg, grainId) {
 function indexSentences(html, cfg) {
   if(!cfg.words && !cfg.characters) return html;
   if(cfg.words === true) return indexSentencesFromWords(html, cfg);
+  if(cfg.characters === true) return indexSentencesFromCharacters(html, cfg);
   return elem.innerHTML;
 }
 
@@ -53,9 +54,29 @@ function indexSentencesFromWords(html, cfg) {
   grains.forEach((grain, i) => {
     const currentWord = grain?.textContent;
     const lastWord = grains[i-1]?.textContent || '';
-    const currentWordStartsWithCapital = currentWord.match(/^[A-Z]/);
+    const currentWordStartsWithCapital = currentWord.match(/^([A-Z]|¡|¿)/);
     const lastWordEndsWithFinalInterPunction = lastWord.match(/(\.|\!|\?)$/);
     if(currentWordStartsWithCapital && lastWordEndsWithFinalInterPunction) sentenceIndex++;
+    grain.style.setProperty(`--${cfg.sentenceId}-index`, sentenceIndex);
+  })
+
+  return elem.innerHTML;
+}
+
+function indexSentencesFromCharacters(html, cfg) {
+  const elem = document.createElement('div');
+  elem.innerHTML = html;
+  const grains = [...elem.querySelectorAll(`[${cfg.attribute}~="${cfg.characterId}"]`)];
+  var sentenceIndex = 0;
+
+  grains.forEach((grain, i) => {
+    const currentCharacter = grain?.textContent;
+    const lastCharacter = grains[i-1]?.textContent || '';
+    const firstToLastCharacter = grains[i-2]?.textContent || '';
+    const currentCharacterStartsWithCapital = currentCharacter.match(/^([A-Z]|¡|¿)/);
+    const firstToLastCharacterEndsWithFinalInterPunction = firstToLastCharacter.match(/(\.|\!|\?)$/);
+    const lastCharacterEqualsSpace = lastCharacter === ' ';    
+    if(currentCharacterStartsWithCapital && lastCharacterEqualsSpace && firstToLastCharacterEndsWithFinalInterPunction) sentenceIndex++;
     grain.style.setProperty(`--${cfg.sentenceId}-index`, sentenceIndex);
   })
 
