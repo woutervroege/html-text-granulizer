@@ -1,17 +1,19 @@
 export const granulize = (html, options={}) => {
   const config = {...{
     tags: true,
-    words: true,
+    words: false,
     characters: true,
     tagId: 'tag',
     wordId: 'word',
     characterId: 'char',
     sentenceId: 'sentence',
+    phraseId: 'phrase',
     attribute: 'data-grain',
     indexTags: true,
     indexWords: true,
     indexCharacters: true,
-    indexSentences: true
+    indexSentences: true,
+    indexPhrases: true
   }, ...options};
   let granulizedHTML = granulizeHTML(html, config);
   return granulizedHTML; 
@@ -26,6 +28,7 @@ function granulizeHTML(text, cfg) {
   if(cfg.words === true && cfg.indexWords) html = indexGrains(html, cfg, 'wordId');
   if(cfg.characters === true && cfg.indexCharacters) html = indexGrains(html, cfg, 'characterId');
   if(cfg.indexSentences) html = indexSentences(html, cfg);
+  if(cfg.indexPhrases) html = indexPhrases(html, cfg);
   return html;
 }
 
@@ -78,6 +81,23 @@ function indexSentencesFromCharacters(html, cfg) {
     const lastCharacterEqualsSpace = lastCharacter === ' ';    
     if(currentCharacterStartsWithCapital && lastCharacterEqualsSpace && firstToLastCharacterEndsWithFinalInterPunction) sentenceIndex++;
     grain.style.setProperty(`--${cfg.sentenceId}-index`, sentenceIndex);
+  })
+
+  return elem.innerHTML;
+}
+
+function indexPhrases(html, cfg) {
+  const elem = document.createElement('div');
+  elem.innerHTML = html;
+  const grainId = cfg.words === true ? cfg.wordId : cfg.characterId;
+  const grains = [...elem.querySelectorAll(`[${cfg.attribute}~="${grainId}"]`)];
+  var phraseIndex = 0;
+
+  grains.forEach((grain) => {
+    const currentGrain = grain?.textContent;
+    const currentGrainEndsWithInterpunction = currentGrain.match(/^(\,|\:|\;|\-|\–)/);
+    grain.style.setProperty(`--${cfg.phraseId}-index`, phraseIndex);
+    if(currentGrainEndsWithInterpunction) phraseIndex++;
   })
 
   return elem.innerHTML;
