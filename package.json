@@ -15,5 +15,11 @@
   "bugs": {
     "url": "https://github.com/woutervroege/html-text-granulizer/issues"
   },
-  "homepage": "https://github.com/woutervroege/html-text-granulizer#readme"
+  "homepage": "https://github.com/woutervroege/html-text-granulizer#readme",
+  "devDependencies": {
+    "release-it": "^14.12.4"
+  },
+  "files": [
+    "src"
+  ]
 }
