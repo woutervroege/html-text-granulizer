@@ -1,0 +1,19 @@
+{
+  "name": "html-text-granulizer",
+  "version": "0.9.0",
+  "description": "HTML Text Granulizer",
+  "main": "src/granulize.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/woutervroege/html-text-granulizer.git"
+  },
+  "author": "Wouter Vroege",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/woutervroege/html-text-granulizer/issues"
+  },
+  "homepage": "https://github.com/woutervroege/html-text-granulizer#readme"
+}
