@@ -13,10 +13,36 @@ export const granulize = (html, options={}) => {
     indexWords: true,
     indexCharacters: true,
     indexSentences: true,
-    indexPhrases: true
+    indexPhrases: true,
+    startPunctuation: /^([A-Z]|¡|¿)/,
+    interpunction: /(\,|\:|\;|\-|\–)$/,
+    endPunctuation: /(\.|\!|\?)$/
   }, ...options};
   let granulizedHTML = granulizeHTML(html, config);
-  return granulizedHTML; 
+
+  const sentenceCount = getGrainCount(config.sentenceId, granulizedHTML);
+  const phraseCount = getGrainCount(config.phraseId, granulizedHTML);
+  const tagCount = getGrainCount(config.tagId, granulizedHTML);
+  const wordCount = getGrainCount(config.wordId, granulizedHTML);
+  const characterCount = getGrainCount(config.characterId, granulizedHTML);
+
+  return {
+    html: granulizedHTML,
+    sentenceCount,
+    phraseCount,
+    tagCount,
+    wordCount,
+    characterCount
+  }
+  
+}
+
+function getGrainCount(grainName, html) {
+  const pattern = new RegExp(`--${grainName}-index:([0-9]+);`, 'g');
+  const matches = [...html.matchAll(pattern)];
+  const lastMatch = matches[matches.length-1];
+  if(!lastMatch) return 0;
+  return +lastMatch[1];
 }
 
 function granulizeHTML(text, cfg) {
@@ -57,8 +83,8 @@ function indexSentencesFromWords(html, cfg) {
   grains.forEach((grain, i) => {
     const currentWord = grain?.textContent;
     const lastWord = grains[i-1]?.textContent || '';
-    const currentWordStartsWithCapital = currentWord.match(/^([A-Z]|¡|¿)/);
-    const lastWordEndsWithFinalInterPunction = lastWord.match(/(\.|\!|\?)$/);
+    const currentWordStartsWithCapital = currentWord.match(cfg.startPunctiation);
+    const lastWordEndsWithFinalInterPunction = lastWord.match(cfg.endPunctuation);
     if(currentWordStartsWithCapital && lastWordEndsWithFinalInterPunction) sentenceIndex++;
     grain.style.setProperty(`--${cfg.sentenceId}-index`, sentenceIndex);
   })
@@ -76,8 +102,8 @@ function indexSentencesFromCharacters(html, cfg) {
     const currentCharacter = grain?.textContent;
     const lastCharacter = grains[i-1]?.textContent || '';
     const firstToLastCharacter = grains[i-2]?.textContent || '';
-    const currentCharacterStartsWithCapital = currentCharacter.match(/^([A-Z]|¡|¿)/);
-    const firstToLastCharacterEndsWithFinalInterPunction = firstToLastCharacter.match(/(\.|\!|\?)$/);
+    const currentCharacterStartsWithCapital = currentCharacter.match(cfg.startPunctiation);
+    const firstToLastCharacterEndsWithFinalInterPunction = firstToLastCharacter.match(cfg.endPunctuation);
     const lastCharacterEqualsSpace = lastCharacter === ' ';    
     if(currentCharacterStartsWithCapital && lastCharacterEqualsSpace && firstToLastCharacterEndsWithFinalInterPunction) sentenceIndex++;
     grain.style.setProperty(`--${cfg.sentenceId}-index`, sentenceIndex);
@@ -95,7 +121,7 @@ function indexPhrases(html, cfg) {
 
   grains.forEach((grain) => {
     const currentGrain = grain?.textContent;
-    const currentGrainEndsWithInterpunction = currentGrain.match(/(\,|\:|\;|\-|\–)$/);
+    const currentGrainEndsWithInterpunction = currentGrain.match(cfg.interpunction);
     grain.style.setProperty(`--${cfg.phraseId}-index`, phraseIndex);
     if(currentGrainEndsWithInterpunction) phraseIndex++;
   })

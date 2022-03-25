@@ -10,8 +10,8 @@
 
   <script type="module">
     import { granulize } from '../src/granulize.js';
-    const granulizedHTML = granulize(article.innerHTML, {indexTags: false, indexWords: false});
-    article.innerHTML = granulizedHTML;
+    const granulizedHTML = granulize(article.innerHTML, {indexTags: true, indexWords: true});
+    article.innerHTML = granulizedHTML.html;
   </script>
 
   <article id="article">
