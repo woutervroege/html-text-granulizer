@@ -38,11 +38,10 @@ export const granulize = (html, options={}) => {
 }
 
 function getGrainCount(grainName, html) {
-  const pattern = new RegExp(`--${grainName}-index:([0-9]+);`, 'g');
+  const pattern = new RegExp(`--${grainName}-index:(\\s|)([0-9]+)`, 'g');
   const matches = [...html.matchAll(pattern)];
-  const lastMatch = matches[matches.length-1];
-  if(!lastMatch) return 0;
-  return +lastMatch[1];
+  const count = matches.slice(-1)?.[0]?.[2] || 0;
+  return (+count)+1;
 }
 
 function granulizeHTML(text, cfg) {
